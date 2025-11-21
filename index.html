@@ -2,212 +2,102 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Google Sheets API POST 테스트</title>
-    <!-- Tailwind CSS 로드 -->
-    <script src="https://cdn.tailwindcss.com"></script>
+    <title>독서 기록 입력 폼</title>
     <style>
-        /* Inter 폰트 사용 */
-        body { font-family: 'Inter', sans-serif; background-color: #f7f9fc; }
-        .input-field {
-            /* Tailwind 클래스 조합으로 스타일 정의 */
-            @apply w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 transition duration-150 ease-in-out;
+        /* 기본 스타일 */
+        body { font-family: sans-serif; padding: 20px; background-color: #f4f4f9; }
+        form { max-width: 450px; margin: 30px auto; padding: 30px; border: 1px solid #ddd; border-radius: 8px; background-color: #fff; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        h2 { text-align: center; color: #333; }
+        label { display: block; margin-bottom: 5px; font-weight: bold; color: #555; }
+        input[type="text"], textarea { display: block; margin-bottom: 15px; width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
+        button { 
+            width: 100%; 
+            padding: 12px; 
+            background-color: #4CAF50; 
+            color: white; 
+            border: none; 
+            border-radius: 4px; 
+            cursor: pointer; 
+            font-size: 16px;
         }
+        button:hover { background-color: #45a049; }
+        #statusMessage { margin-top: 20px; padding: 15px; border-radius: 5px; text-align: center; font-weight: bold; display: none; }
+        .success { background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .error { background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
     </style>
 </head>
 <body>
-    <div class="max-w-3xl mx-auto p-6 bg-white shadow-2xl rounded-xl mt-10">
-        <h1 class="text-3xl font-extrabold text-gray-900 mb-6 border-b pb-2">
-            API 데이터 전송 테스트 (Apps Script)
-        </h1>
-        <p class="text-gray-600 mb-6">
-            테스트 데이터를 입력하고 제출하여 Google Sheet에 저장되는지 확인하세요.
-        </p>
 
-        <!-- 메시지 표시 영역 -->
-        <div id="message-box" class="p-4 rounded-lg text-sm mb-6 hidden" role="alert"></div>
-        <div id="loading-indicator" class="hidden text-center p-4">
-            <svg class="animate-spin h-5 w-5 mr-3 text-blue-500 inline-block" viewBox="0 0 24 24">
-                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-            </svg>
-            데이터를 전송 중입니다...
-        </div>
+    <h2>📚 독서 기록 시트 데이터 입력</h2>
+    <form id="book-entry-form">
+        <label for="UserID">사용자 ID:</label>
+        <input type="text" id="UserID" name="UserID" required>
 
-        <form id="submission-form" class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <!-- UserID -->
-            <div>
-                <label for="UserID" class="block text-sm font-medium text-gray-700 mb-1">UserID (사용자 ID)</label>
-                <input type="text" id="UserID" name="UserID" value="Tester_101" required class="input-field">
-            </div>
-            <!-- Title -->
-            <div>
-                <label for="Title" class="block text-sm font-medium text-gray-700 mb-1">Title (기록 제목)</label>
-                <input type="text" id="Title" name="Title" value="Apps Script 연결 테스트" required class="input-field">
-            </div>
-            <!-- department -->
-            <div>
-                <label for="department" class="block text-sm font-medium text-gray-700 mb-1">department (학과)</label>
-                <input type="text" id="department" name="department" value="디자인" class="input-field">
-            </div>
-            <!-- grade -->
-            <div>
-                <label for="grade" class="block text-sm font-medium text-gray-700 mb-1">grade (학년)</label>
-                <input type="text" id="grade" name="grade" value="3학년" class="input-field">
-            </div>
-            <!-- book_title -->
-            <div class="md:col-span-2">
-                <label for="book_title" class="block text-sm font-medium text-gray-700 mb-1">book_title (책 제목)</label>
-                <input type="text" id="book_title" name="book_title" value="데이터베이스 연결 성공" required class="input-field">
-            </div>
-            <!-- book_author -->
-            <div>
-                <label for="book_author" class="block text-sm font-medium text-gray-700 mb-1">book_author (저자)</label>
-                <input type="text" id="book_author" name="book_author" value="구글 개발자" class="input-field">
-            </div>
-            <!-- book_keywords -->
-            <div>
-                <label for="book_keywords" class="block text-sm font-medium text-gray-700 mb-1">book_keywords (주 키워드)</label>
-                <input type="text" id="book_keywords" name="book_keywords" value="API, 테스트" class="input-field">
-            </div>
-            <!-- book_keywords_2 -->
-            <div>
-                <label for="book_keywords_2" class="block text-sm font-medium text-gray-700 mb-1">book_keywords_2 (보조 키워드)</label>
-                <input type="text" id="book_keywords_2" name="book_keywords_2" value="Google Sheets" class="input-field">
-            </div>
-            <!-- Keywords (대문자 K) -->
-            <div>
-                <label for="Keywords" class="block text-sm font-medium text-gray-700 mb-1">Keywords (최종 키워드)</label>
-                <input type="text" id="Keywords" name="Keywords" value="성공" class="input-field">
-            </div>
+        <label for="Title">기록 제목:</label>
+        <input type="text" id="Title" name="Title" required>
 
-            <!-- 제출 버튼 -->
-            <div class="md:col-span-2 mt-4">
-                <button type="submit" id="submit-button" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-lg shadow-lg transition duration-150 ease-in-out focus:outline-none focus:ring-4 focus:ring-blue-500 focus:ring-opacity-50">
-                    데이터 시트에 제출
-                </button>
-            </div>
-        </form>
-    </div>
+        <label for="book_title">책 제목:</label>
+        <input type="text" id="book_title" name="book_title" required>
+
+        <label for="book_author">저자:</label>
+        <input type="text" id="book_author" name="book_author" required>
+        
+        <label for="Keywords">키워드 (쉼표로 구분):</label>
+        <textarea id="Keywords" name="Keywords" rows="3"></textarea>
+
+        <button type="submit">시트에 데이터 저장</button>
+    </form>
+
+    <div id="statusMessage"></div>
 
     <script>
-        // ====================================================================
-        // ✅ 여기에 배포하신 웹 앱 URL (예: https://script.google.com/macros/s/AKfyc...)을 붙여넣으세요.
-        // 이전에 사용한 긴 URL (user_content_key가 포함된) 대신 영구 URL을 사용해야 합니다.
-        // ====================================================================
-        const WEB_APP_URL = 'https://script.google.com/macros/s/[여기에 새로 복사한 영구 URL을 붙여넣으세요]/exec'; 
+        const form = document.getElementById('book-entry-form');
+        const statusMessage = document.getElementById('statusMessage');
 
-        const form = document.getElementById('submission-form');
-        const messageBox = document.getElementById('message-box');
-        const loadingIndicator = document.getElementById('loading-indicator');
-        const submitButton = document.getElementById('submit-button');
-
-        function showMessage(text, type = 'success') {
-            messageBox.textContent = text;
-            messageBox.className = 'p-4 rounded-lg text-sm mb-6';
-            if (type === 'success') {
-                messageBox.classList.add('bg-green-100', 'text-green-800');
-            } else if (type === 'error') {
-                messageBox.classList.add('bg-red-100', 'text-red-800');
-            } else { // info
-                messageBox.classList.add('bg-blue-100', 'text-blue-800');
-            }
-            messageBox.classList.remove('hidden');
-        }
-
-        function hideMessage() {
-            messageBox.classList.add('hidden');
-        }
-
-        function toggleLoading(isLoading) {
-            loadingIndicator.classList.toggle('hidden', !isLoading);
-            submitButton.disabled = isLoading;
-            submitButton.textContent = isLoading ? '전송 중...' : '데이터 시트에 제출';
-        }
-
-        // 지연 및 지터가 있는 Exponential backoff 구현
-        async function fetchWithRetry(url, options, maxRetries = 5) {
-            for (let i = 0; i < maxRetries; i++) {
-                try {
-                    const response = await fetch(url, options);
-                    if (response.ok) {
-                        return response;
-                    }
-                    // Apps Script 배포 문제(404, 401 등)는 재시도하지 않습니다.
-                    if (response.status === 429 || response.status >= 500) {
-                        throw new Error(`Server error or rate limit: ${response.status}`);
-                    }
-                    
-                    // 기타 API 오류 처리
-                    const errorText = await response.text();
-                    throw new Error(`API Error (${response.status}): ${errorText.substring(0, 100)}...`);
-
-                } catch (error) {
-                    if (i === maxRetries - 1) {
-                        // 마지막 시도라면 오류 throw
-                        throw error;
-                    }
-
-                    // Exponential backoff 및 jitter를 사용한 지연 계산
-                    const delay = Math.pow(2, i) * 1000 + Math.random() * 1000;
-                    await new Promise(resolve => setTimeout(resolve, delay));
-                }
-            }
-        }
-
-
-        form.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            hideMessage();
-            toggleLoading(true);
-
-            if (WEB_APP_URL.includes('[여기에 새로 복사한 영구 URL을 붙여넣으세요]')) {
-                 showMessage("❌ 오류: 'WEB_APP_URL' 변수에 배포된 Apps Script 주소를 입력하지 않았습니다. 1단계 URL 재확인 및 수정 후 다시 시도해 주세요.", 'error');
-                 toggleLoading(false);
-                 return;
-            }
+        // ★★★ 3단계에서 복사한 '웹 앱 URL'을 여기에 붙여넣으세요. ★★★
+        const WEB_APP_URL = '여기에_복사한_웹앱_URL_전체를_붙여넣으세요'; 
+        
+        form.addEventListener('submit', function(e) {
+            e.preventDefault(); // 기본 폼 제출(페이지 이동) 방지
+            
+            // 전송 중 상태 표시
+            statusMessage.textContent = '데이터를 전송 중입니다... 잠시만 기다려 주세요.';
+            statusMessage.className = '';
+            statusMessage.style.display = 'block';
 
             const formData = new FormData(form);
-            const data = {};
             
-            // 폼 데이터를 JSON 객체로 변환 (Apps Script의 doPost가 요구하는 형식)
-            formData.forEach((value, key) => {
-                data[key] = value;
-            });
-            
-            const postOptions = {
+            // fetch API를 사용하여 Apps Script 웹 앱에 POST 요청을 보냅니다.
+            fetch(WEB_APP_URL, {
                 method: 'POST',
-                // JSON 데이터를 문자열로 변환하여 body에 넣습니다.
-                body: JSON.stringify(data), 
-            };
-
-            try {
-                // Fetch 요청 실행
-                const response = await fetchWithRetry(WEB_APP_URL, postOptions);
-                
-                // Apps Script의 응답은 항상 JSON 형식입니다.
-                const result = await response.json();
-                
-                if (result.status === 'SUCCESS') {
-                    showMessage(`✅ 성공: 데이터가 Google Sheet에 성공적으로 추가되었습니다. (메시지: ${result.message})`, 'success');
-                } else {
-                    // Apps Script 내부 로직 오류 (예: 시트 이름 오류)
-                    showMessage(`❌ 실패: API 처리 중 오류가 발생했습니다. (오류 메시지: ${result.message})`, 'error');
+                body: formData // FormData 객체를 body로 전송 (이것이 데이터입니다)
+            })
+            .then(response => {
+                // HTTP 응답이 성공(200 OK)인지 확인
+                if (response.ok) {
+                    return response.json();
                 }
-
-            } catch (error) {
-                console.error("Fetch Error:", error);
-                // 네트워크 또는 CORS 문제로 인한 오류
-                showMessage(`❌ 전송 실패: 서버 연결 또는 네트워크 오류. 자세한 내용은 콘솔(F12)을 확인하세요. (오류: ${error.message})`, 'error');
-            } finally {
-                toggleLoading(false);
-            }
-        });
-
-        // 초기 상태 메시지 (API URL이 설정되지 않았음을 알림)
-        document.addEventListener('DOMContentLoaded', () => {
-             showMessage("📌 Apps Script 웹 앱 URL을 'WEB_APP_URL' 변수에 입력한 후 테스트해 주세요.", 'info');
+                throw new Error('네트워크 응답이 올바르지 않습니다.');
+            })
+            .then(data => {
+                // Apps Script에서 받은 JSON 응답을 처리합니다.
+                if (data.result === 'success') {
+                    statusMessage.textContent = `✅ 성공! 데이터가 시트의 ${data.row}번째 행에 추가되었습니다.`;
+                    statusMessage.className = 'success';
+                    form.reset(); // 폼 필드 초기화
+                } else {
+                    // Apps Script 코드 실행 중 오류가 발생한 경우
+                    statusMessage.textContent = `❌ 데이터 추가 실패 (스크립트 오류): ${data.message}`;
+                    statusMessage.className = 'error';
+                }
+            })
+            .catch(error => {
+                // 네트워크 오류 또는 기타 통신 오류가 발생한 경우
+                statusMessage.textContent = `❌ 통신 오류 발생: ${error.message}. 웹 앱 URL 또는 네트워크 상태를 확인해주세요.`;
+                statusMessage.className = 'error';
+            });
         });
     </script>
+
 </body>
 </html>
